@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+// user - movie - many to many - 1
+// user - booking - one to one - 2
+model User {
+  customer_id Int @id @unique @default(autoincrement())
+  customer_name String
+  email String 
+  phone_number String?
+  mode_of_payment String
+  userMovies UserMovie[]
+  booking Booking?
+}
+//
+
+// movie - booking - one to many - 3
+model Movie{
+  movie_id Int @id @unique 
+  movie_name String
+  duration Int
+  screens Int
+  release_date DateTime
+  userMovies UserMovie[]
+  bookings Booking[]
+}
+// user - movie - many to many - 1
+model UserMovie {
+  userId Int 
+  movieId Int
+  user User @relation(fields: [userId], references: [customer_id])
+  movie Movie @relation(fields: [movieId], references: [movie_id])
+  @@id([userId, movieId])
+}
+
+
+// user - booking - one to one - 2
+// movie - booking - one to many - 3
+model Booking {
+  booking_id Int @id @unique @default(autoincrement())
+  movie Movie @relation(fields: [movieId], references: [movie_id])
+  movieId Int
+  user User @relation(fields: [userId], references: [customer_id])
+  userId Int @unique
+  price Decimal?
+}
